@@ -35,7 +35,7 @@ All logic lives in three files at the root:
 **Backend:** External REST API at `https://jaundice-server.onrender.com`. The frontend POSTs JSON to `/api/chat` with these fields:
 
 ```json
-{ "text": "...", "clientId": "...", "babyId": null, "language": "繁體中文", "role": "user" }
+{ "text": "...", "clientId": "...", "babyId": null, "parentId": null, "language": "繁體中文", "role": "user" }
 ```
 
 The `clientId` is also sent as an `X-Client-Id` request header.
@@ -44,7 +44,11 @@ The `clientId` is also sent as an `X-Client-Id` request header.
 
 **Session identity:** `clientId` is a UUID stored in `localStorage` under the key `fourleaf_client_id`. `babyId` is stored under `babyID`.
 
-**WebView bridge:** Native mobile apps inject the patient's baby ID by calling `window.setBabyId(id)` after the page loads. This persists `babyId` to localStorage for subsequent requests.
+**WebView bridge:** Native mobile apps inject identifiers after the page loads via two functions:
+- `window.setBabyId(id)` — injects the patient's baby ID; persisted under `babyID` in localStorage.
+- `window.setParentId(id)` — injects the logged-in parent's Firebase UID; persisted under `parentID` in localStorage.
+
+Both values are sent to the API on every request.
 
 **Input preprocessing:** `processQuestionMarks()` strips trailing `?`/`？` and converts mid-sentence question marks to newlines before the text is sent to the API.
 

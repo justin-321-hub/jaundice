@@ -41,6 +41,21 @@ window.setBabyId = function (id) {
 };
 
 /* =========================
+   Parent ID（App WebView 注入）
+========================= */
+
+const PARENT_ID_KEY = "parentID";
+let parentId = localStorage.getItem(PARENT_ID_KEY) || null;
+
+// App 透過 WebView 在頁面載入完畢後呼叫此函式，將登入家長的 Firebase UID 注入網頁
+window.setParentId = function (id) {
+  if (id && typeof id === "string" && id.trim()) {
+    parentId = id.trim();
+    localStorage.setItem(PARENT_ID_KEY, parentId);
+  }
+};
+
+/* =========================
    DOM References
 ========================= */
 
@@ -278,6 +293,7 @@ async function sendText(text, retryCounts = {}) {
         text: contentToSend,
         clientId,
         babyId: babyId || null,
+        parentId: parentId || null,
         language: "繁體中文",
         role: "user"
       }),
