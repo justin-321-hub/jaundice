@@ -8,7 +8,7 @@
    Backend API Domain
 ========================= */
 
-const API_BASE = "https://jaundice-server.onrender.com";
+const API_BASE = "https://jaundice-test-server.onrender.com";
 const api = (p) => `${API_BASE}${p}`;
 
 /* =========================
@@ -316,12 +316,17 @@ async function sendText(text, retryCounts = {}) {
   // ==========================================
 
   try {
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Client-Id": clientId,
+    };
+    if (authToken) {
+      headers["Authorization"] = `Bearer ${authToken}`;
+    }
+
     const res = await fetch(api("/api/chat"), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Client-Id": clientId,
-      },
+      headers,
       body: JSON.stringify({
         text: contentToSend,
         clientId,
