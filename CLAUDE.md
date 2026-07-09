@@ -38,17 +38,20 @@ All logic lives in three files at the root:
 { "text": "...", "clientId": "...", "babyId": null, "parentId": null, "language": "繁體中文", "role": "user" }
 ```
 
-The `clientId` is also sent as an `X-Client-Id` request header.
+The `clientId` is also sent as an `X-Client-Id` request header, and, if a Firebase ID token has been injected, an `Authorization: Bearer <token>` header.
 
 ### `app.js` internals
 
-**Session identity:** `clientId` is a UUID stored in `localStorage` under the key `fourleaf_client_id`. `babyId` is stored under `babyID`.
+**Session identity:** `clientId` is a UUID stored in `localStorage` under the key `fourleaf_client_id`. `babyId` is stored under `babyID`, `parentId` under `parentID`.
 
-**WebView bridge:** Native mobile apps inject identifiers after the page loads via two functions:
+**WebView bridge:** Native mobile apps inject identifiers/tokens after the page loads via three functions:
 - `window.setBabyId(id)` — injects the patient's baby ID; persisted under `babyID` in localStorage.
 - `window.setParentId(id)` — injects the logged-in parent's Firebase UID; persisted under `parentID` in localStorage.
+- `window.setAuthToken(token)` — injects a Firebase ID token; kept in memory only (not persisted), sent as a `Bearer` token on every request once set.
 
-Both values are sent to the API on every request.
+`babyId`/`parentId` are sent to the API on every request; `authToken` is only added as a header when present.
+
+**Language selector:** `elLangSelect` (`#langSelect` in `index.html`) switches between four languages (繁體中文/English/印尼文/越南文) defined in the `WELCOME_MESSAGES` map. Selecting a language persists it to `localStorage` under `fourleaf_language`, resets the visible conversation, and re-renders the matching welcome message. The active language is also sent as the `language` field on every chat request.
 
 **Input preprocessing:** `processQuestionMarks()` strips trailing `?`/`？` and converts mid-sentence question marks to newlines before the text is sent to the API.
 
@@ -82,3 +85,8 @@ Each path inserts an interim status message, waits 1 s, then calls `sendText()` 
 - `assets/` — logo and avatar images (logo, user, bot). The bot/user avatars in `assets/` are not used at runtime; `app.js` loads them from GitHub CDN.
 - `pic/` — educational images embedded in chat responses (stool color chart, bile duct diagram).
 - `marked.umd.js` — bundled markdown parser; update by replacing this file with a newer UMD build from the marked project.
+- `docs/flutter-webview-baby-id.md` — design notes (in Chinese) for how the Flutter app injects `babyId` into the WebView via `window.setBabyId()`.
+
+## Related repository
+
+A sibling repo, `jaundice_inside`, is a clinician-facing variant of this same frontend (different API endpoint, adds `clinicianId` support, no language selector). It is a separate git repository/remote, not a branch of this one — changes are not automatically shared between the two.
