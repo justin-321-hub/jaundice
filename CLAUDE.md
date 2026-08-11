@@ -59,6 +59,9 @@ The `clientId` is also sent as an `X-Client-Id` request header, and, if a Fireba
 1. `isHtmlFormat()` — if the response contains HTML tags, inject it directly (no escaping).
 2. `processContent()` — detects Markdown patterns; if found and `marked` is available, runs `marked.parse()`.
 3. Fallback — `escapeHtml()` + replace `\n` with `<br>`. User messages always use this fallback.
+4. Whichever path produced the HTML, the result is always passed through `DOMPurify.sanitize()` before being written to `innerHTML` — this is the last line of defense against XSS, so no path (including raw HTML from the backend) can bypass sanitization. If `DOMPurify` isn't loaded, `processContent()` falls back to plain-text rendering instead of risking unsanitized HTML.
+
+**Dangerous keyword interception:** `DANGEROUS_KEYWORDS` (currently just `["自殺"]`, a placeholder list still being expanded) is checked on every `input` event against the textarea value. A match immediately clears and disables the input/send button and shows `#dangerAlertModal`, a blocking alert dialog urging the user to seek professional help. The modal only dismisses via its own confirm button (`dismissDangerAlert()`), which re-enables input. `isDangerLocked()` guards `setThinking(false)` so a completed request can't accidentally re-enable input while the danger modal is up.
 
 **Temp messages:** During a pending request, progress messages (`{ isTemp: true }`) are pushed to the `messages` array at 4 s and 8 s. `clearAllTempMessages()` removes all of them before the final reply or error is rendered.
 
@@ -85,6 +88,7 @@ Each path inserts an interim status message, waits 1 s, then calls `sendText()` 
 - `assets/` — logo and avatar images (logo, user, bot). The bot/user avatars in `assets/` are not used at runtime; `app.js` loads them from GitHub CDN.
 - `pic/` — educational images embedded in chat responses (stool color chart, bile duct diagram).
 - `marked.umd.js` — bundled markdown parser; update by replacing this file with a newer UMD build from the marked project.
+- `dompurify.umd.js` — bundled HTML sanitizer; every rendered bot message is sanitized through it (see Content rendering pipeline above) before being written to the DOM.
 - `docs/flutter-webview-baby-id.md` — design notes (in Chinese) for how the Flutter app injects `babyId` into the WebView via `window.setBabyId()`.
 
 ## Related repository
