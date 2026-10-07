@@ -98,6 +98,8 @@ const elThinking = document.getElementById("thinking");
 const elLangSelect = document.getElementById("langSelect");
 const elDangerModal = document.getElementById("dangerAlertModal");
 const elDangerConfirm = document.getElementById("dangerAlertConfirm");
+const elTopbar = document.getElementById("topbar");
+const elHeaderToggle = document.getElementById("btnHeaderToggle");
 
 /* =========================
    Message State
@@ -546,6 +548,14 @@ if (elLangSelect) {
     render();
   });
 }
+
+// Header collapse toggle (state not persisted; always expanded on load)
+elHeaderToggle?.addEventListener("click", () => {
+  const collapsed = elTopbar.classList.toggle("hidden");
+  elHeaderToggle.textContent = collapsed ? "▼" : "▲";
+  elHeaderToggle.setAttribute("aria-expanded", String(!collapsed));
+  elHeaderToggle.setAttribute("aria-label", collapsed ? "展開頂部標題區域" : "隱藏頂部標題區域");
+});
 
 window.addEventListener("load", () => elInput?.focus());
 

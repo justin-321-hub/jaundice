@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <header class="topbar">
+    <header id="topbar" class="topbar">
       <img src="./assets/jaundice_logo.jpg" class="logo" alt="新生兒黃疸衛教小幫手 logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
       <div class="brand">
         <div class="title">👶 新生兒黃疸居家照護衛教智慧客服中心</div>
@@ -31,6 +31,7 @@
         <option value="越南文">🇻🇳 Tiếng Việt</option>
       </select>
     </header>
+    <button id="btnHeaderToggle" class="header-toggle" type="button" aria-expanded="true" aria-controls="topbar" aria-label="隱藏頂部標題區域">▲</button>
 
     <main class="main">
       <div id="messages" class="messages"></div>
